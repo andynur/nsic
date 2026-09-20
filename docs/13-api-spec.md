@@ -111,3 +111,23 @@ type WsEvent =
 
 Events are also persisted (step/tool/evidence), so a reconnecting UI just needs to call
 `GET /api/sessions/:id/steps?after=<lastSeq>`.
+
+## Dashboard
+
+`GET /api/dashboard?days=30&project=<id>` returns the `Dashboard` contract in
+`web/app/dashboard-types.ts`. `days` is exactly `7` or `30` (default `30`);
+`project` is optional, must identify an existing project, and scopes every metric.
+The project selector includes archived projects so historical work remains accessible.
+Invalid input returns 400; an unknown project returns 404.
+
+`generated_at` and `from` are epoch milliseconds. The cost period covers UTC calendar
+days including today, ending at `generated_at` (inclusive); `daily` includes zero days.
+All-project costs include calls without an issue; project costs exclude them.
+Costs are recorded estimates, not invoices. Other metrics describe current state,
+independent of the cost period. Open excludes resolved, closed, and cancelled.
+Attention includes awaiting_user, blocked, and budget_exceeded; the count is complete,
+while the list contains the oldest-updated 10, with key as a stable tie-breaker.
+Attention cost is lifetime issue cost; budget falls back to the project default.
+Evidence distribution covers open issues. Workload includes every scoped project,
+ordered by open issue count then name. The response is a consistent read-only snapshot,
+contains no credentials, and does not enqueue agent or NetSuite actions.

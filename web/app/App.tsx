@@ -3,6 +3,7 @@ import { Router, Link, useRoute, navigate, type RouteDef } from "./router.tsx";
 import { onOnline, wsStart } from "./api.ts";
 import { ToastProvider } from "./components/Toasts.tsx";
 import { Icon } from "./components/Icon.tsx";
+import { DashboardPage } from "./pages/dashboard.tsx";
 import { InboxPage } from "./pages/Inbox.tsx";
 import { ProjectsPage } from "./pages/Projects.tsx";
 import { ProjectPage } from "./pages/Project.tsx";
@@ -17,6 +18,7 @@ import { useTheme } from "./theme.ts";
 import { useDocumentTitle } from "./hooks.ts";
 
 const ROUTES: RouteDef[] = [
+  { name: "dashboard", pattern: "/dashboard" },
   { name: "inbox", pattern: "/" },
   { name: "projects", pattern: "/projects" },
   { name: "env", pattern: "/projects/:id/env/:envId" },
@@ -28,7 +30,7 @@ const ROUTES: RouteDef[] = [
   { name: "settings", pattern: "/settings" },
 ];
 
-const TITLES: Record<string, string> = { inbox: "Inbox", projects: "Projects", project: "Project", env: "Environment", newIssue: "New issue", issue: "Issue", report: "Report", usage: "Usage", settings: "Settings" };
+const TITLES: Record<string, string> = { dashboard: "Dashboard", inbox: "Inbox", projects: "Projects", project: "Project", env: "Environment", newIssue: "New issue", issue: "Issue", report: "Report", usage: "Usage", settings: "Settings" };
 const NAV_KEY = "nsic.nav.collapsed";
 
 function Page() {
@@ -37,6 +39,7 @@ function Page() {
   // Pages with a more specific name (issue key, project name) override this with useDocumentTitle.
   useDocumentTitle(match ? (p.key ? `${p.key}${match.name === "report" ? " report" : ""}` : TITLES[match.name] ?? null) : "Page not found");
   switch (match?.name) {
+    case "dashboard": return <DashboardPage />;
     case "inbox": return <InboxPage />;
     case "projects": return <ProjectsPage />;
     case "project": return <ProjectPage id={p.id!} />;
@@ -96,6 +99,7 @@ function Shell() {
           <strong>NSIC</strong>
           <button className="btn ghost sm" aria-label={collapsed ? "Open navigation" : "Collapse navigation"} onClick={() => setCollapsed((c) => !c)}><Icon name="menu" /></button>
         </div>
+        <Link to="/dashboard"><Icon name="chart" /><span className="label">Dashboard</span></Link>
         <Link to="/"><Icon name="inbox" /><span className="label">Inbox</span></Link>
         <Link to="/issues/new"><Icon name="plus" /><span className="label">New issue</span></Link>
         <Link to="/projects"><Icon name="folder" /><span className="label">Projects</span></Link>

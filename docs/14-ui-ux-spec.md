@@ -84,7 +84,7 @@ Responsive: below 1024 px, the left & right columns become drawers; below 640 px
 ## 8. Usage
 
 - Key stats: cost this month, issue count, average cost per issue, cache hit ratio.
-- A table per issue (sorted by cost), per model, a daily trend (a simple inline SVG bar chart, one scale).
+- A table per issue (sorted by cost), per model, and a daily trend with a shared scale. Daily bars use intensity colors (low, medium, high), are keyboard focusable, and expose the exact value on hover or focus. Cost/token toggles let operators switch the chart metric without changing the reporting period; the expandable daily table supports day and cost sorting.
 
 ## 9. Required UI states
 
@@ -100,3 +100,23 @@ error (a message + a recovery action), server offline (a "server not connected, 
 
 Landmarks, a "Skip to content" link, a descriptive tab title per page, one `h1` per page, visible focus, every action reachable by keyboard, AA contrast in light & dark,
 status never marked by color alone (there's always text), `prefers-reduced-motion` is respected.
+
+## Dashboard (`/dashboard`)
+
+The first navigation item opens a cross-project operational overview. Inbox remains
+at `/`. Project and cost-period filters persist in the URL and support browser history.
+Four counters summarize open issues, issues needing attention, total issues, and
+estimated AI cost. Current status and evidence distributions use labeled bars;
+daily UTC cost has a shared zero baseline and an expandable numeric table.
+The oldest 10 attention items link directly to issue workspaces and show lifetime
+cost against the effective budget. A project table links to project workspaces.
+
+The daily cost chart uses intensity colors, keyboard-focusable bars, exact value
+tooltips, and a selected-day status line. Operators can filter it to all days or
+days with recorded cost; the expandable table remains the text equivalent.
+
+Refresh is available manually and every 30 seconds while the document is visible,
+and on returning to the tab. Background refresh preserves the rendered dashboard;
+changing filters clears the old snapshot. Loading, retryable errors, empty workspace,
+no attention, and zero-cost states are explicit. Charts have text equivalents;
+wide tables scroll within their containers. Light and dark use existing design tokens.

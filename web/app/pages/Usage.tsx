@@ -1,5 +1,5 @@
 // Usage (14 §8, 10 §3): headline stats, per-issue table, per-model, daily trend (SVG-free bars, one scale).
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useApi } from "../hooks.ts";
 import { Link } from "../router.tsx";
 import { Empty, ErrorBox, Loading, Money, fmtTokens } from "../components/ui.tsx";
@@ -15,12 +15,27 @@ const monthStart = (offset: number) => {
 export function UsagePage() {
   const [month, setMonth] = useState(0);
   const [project, setProject] = useState("");
+  const [chartMetric, setChartMetric] = useState<"cost" | "tokens">("cost");
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [sort, setSort] = useState<"day" | "cost">("day");
+  const [descending, setDescending] = useState(false);
   const projects = useApi<ProjectListItem[]>("/api/projects");
   const from = monthStart(month);
   const to = monthStart(month + 1);
   const u = useApi<Usage>(`/api/usage?from=${from}&to=${to}${project ? `&project=${project}` : ""}`, []);
   const label = new Date(from).toLocaleDateString("en-US", { month: "long", year: "numeric" });
   const tok = (t: Totals) => t.input_tokens + t.output_tokens + t.cache_read_tokens + t.cache_write_tokens;
+  const daily = u.data?.daily ?? [];
+  const dailyValues = useMemo(() => daily.map((d) => ({ ...d, chartValue: chartMetric === "cost" ? d.cost_usd : tok(d) })), [daily, chartMetric]);
+  const peak = Math.max(...dailyValues.map((d) => d.chartValue), 0.0001);
+  const selected = daily.find((d) => d.day === selectedDay);
+  const sortedDaily = [...daily].sort((a, b) => {
+    const delta = sort === "day" ? a.day.localeCompare(b.day) : a.cost_usd - b.cost_usd;
+    return descending ? -delta : delta;
+  });
+  const toggleSort = (next: "day" | "cost") => {
+    if (sort === next) setDescending((value) => !value); else { setSort(next); setDescending(next === "cost"); }
+  };
   return (
     <div className="page">
       <div className="page-head">
@@ -40,15 +55,17 @@ export function UsagePage() {
             <div><div className="t-caption">Cache hit ratio</div><div className="v">{Math.round(u.data.cacheHitRatio * 100)}%</div></div>
           </div>
           <section className="block" aria-labelledby="h-daily">
-            <h2 id="h-daily" className="t-heading">Daily trend</h2>
-            <div className="bars" aria-hidden="true">
-              {(() => {
-                const max = Math.max(...u.data!.daily.map((d) => d.cost_usd), 0.0001);
-                return u.data!.daily.map((d) => <div key={d.day} title={`${d.day}: $${d.cost_usd.toFixed(4)}`} style={{ height: `${(d.cost_usd / max) * 100}%` }} />);
-              })()}
+            <div className="row-between chart-heading"><h2 id="h-daily" className="t-heading">Daily trend</h2><div className="row" role="group" aria-label="Chart metric"><button className={`btn sm ${chartMetric === "cost" ? "selected" : "ghost"}`} aria-pressed={chartMetric === "cost"} onClick={() => setChartMetric("cost")}>Cost</button><button className={`btn sm ${chartMetric === "tokens" ? "selected" : "ghost"}`} aria-pressed={chartMetric === "tokens"} onClick={() => setChartMetric("tokens")}>Tokens</button></div></div>
+            <div className="bars interactive-bars" aria-label={`Daily ${chartMetric} trend`} role="group">
+              {dailyValues.map((d) => {
+                const ratio = d.chartValue / peak;
+                const tone = ratio >= 0.75 ? "high" : ratio >= 0.4 ? "medium" : "low";
+                return <button type="button" key={d.day} className={`chart-bar tone-${tone} ${selectedDay === d.day ? "selected" : ""}`} aria-label={`${d.day}: ${chartMetric === "cost" ? `$${d.cost_usd.toFixed(4)}` : `${fmtTokens(tok(d))} tokens`}`} aria-pressed={selectedDay === d.day} title={`${d.day}: ${chartMetric === "cost" ? `$${d.cost_usd.toFixed(4)}` : `${fmtTokens(tok(d))} tokens`}`} style={{ height: `${ratio * 100}%` }} onClick={() => setSelectedDay(d.day)} />;
+              })}
             </div>
             <div className="row-between t-caption"><span>{u.data.daily[0]?.day}</span><span>{u.data.daily.at(-1)?.day}</span></div>
-            <table className="sr-only"><caption>Cost per day</caption><thead><tr><th scope="col">Day</th><th scope="col">Cost (USD)</th></tr></thead><tbody>{u.data.daily.map((d) => <tr key={d.day}><td>{d.day}</td><td>{d.cost_usd.toFixed(2)}</td></tr>)}</tbody></table>
+            <p className="t-caption chart-insight" role="status">{selected ? <><strong>{selected.day}</strong>: <Money usd={selected.cost_usd} digits={4} /> · {fmtTokens(tok(selected))} tokens</> : "Select a day to inspect its cost and token volume."}</p>
+            <details><summary>View daily values</summary><div className="table-wrap"><table className="t"><caption>Daily usage values</caption><thead><tr><th scope="col"><button className="table-sort" onClick={() => toggleSort("day")}>Day {sort === "day" ? (descending ? "↓" : "↑") : ""}</button></th><th scope="col" className="num"><button className="table-sort" onClick={() => toggleSort("cost")}>Cost {sort === "cost" ? (descending ? "↓" : "↑") : ""}</button></th><th scope="col" className="num">Tokens</th></tr></thead><tbody>{sortedDaily.map((d) => <tr key={d.day}><td>{d.day}</td><td className="num"><Money usd={d.cost_usd} /></td><td className="num">{fmtTokens(tok(d))}</td></tr>)}</tbody></table></div></details>
           </section>
           <div className="grid-2">
             <section className="block" aria-labelledby="h-model">

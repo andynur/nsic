@@ -1,4 +1,5 @@
 // In-memory API handler for static UI mode. Same contract as docs/13-api-spec.md; never touches the backend.
+import { dashboardFixture } from "./dashboard.ts";
 import * as F from "./fixtures.ts";
 import type { Issue, Message, Step } from "../types.ts";
 
@@ -62,6 +63,7 @@ function simulateRun(issue: Issue, emit: Emit, directive: string) {
 }
 
 const routes: [string, string, H][] = [
+  ["GET", "/api/dashboard", ({ query }) => dashboardFixture(Number(query.get("days") ?? 30), query.get("project"))],
   ["GET", "/api/projects", () => F.projects.map((p) => ({ ...p, environments: F.envs.filter((e) => e.project_id === p.id).map((e) => ({ ...e, tier: e.profile?.tier ?? "none" })), repos: F.repos.filter((r) => r.project_id === p.id) }))],
   ["POST", "/api/projects", ({ body }) => {
     const b = body as { name: string; client_name?: string; key_prefix?: string; default_budget_usd?: number };

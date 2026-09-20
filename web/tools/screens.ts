@@ -11,6 +11,7 @@ mkdirSync(out, { recursive: true });
 
 const PAGES: [string, string, string?][] = [
   ["inbox", "/"],
+  ["dashboard", "/dashboard"],
   ["issue-acme-42", "/issues/ACME-42"],
   ["issue-acme-42-consultant", "/issues/ACME-42", "consultant"],
   ["issue-acme-43-running", "/issues/ACME-43"],

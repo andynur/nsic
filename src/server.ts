@@ -12,6 +12,7 @@ import { startCron } from "./jobs/cron.ts";
 import { projectRoutes } from "./routes/projects.ts";
 import { issueRoutes } from "./routes/issues.ts";
 import { agentRoutes } from "./routes/agent.ts";
+import { dashboardRoutes } from "./routes/dashboard.ts";
 import { systemRoutes } from "./routes/system.ts";
 import { checkRequest, errorJson, HttpError } from "./routes/http.ts";
 import { completeOAuth } from "./netsuite/oauth-pkce.ts";
@@ -43,6 +44,7 @@ const server = Bun.serve<WsData>({
     ...issueRoutes,
     ...agentRoutes,
     ...systemRoutes,
+    ...dashboardRoutes,
     "/api/*": () => errorJson(404, "not_found", "endpoint not found"),
     "/oauth/callback": async (req: Request) => {
       const u = new URL(req.url);
