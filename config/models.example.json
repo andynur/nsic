@@ -1,0 +1,19 @@
+{
+  "agent_main": "claude-sonnet-5",
+  "agent_escalation": "claude-opus-5",
+  "ingest": "claude-haiku-4-5",
+  "triage": "claude-haiku-4-5",
+  "intent": "claude-haiku-4-5",
+  "consultant": "claude-haiku-4-5",
+  "report_writer": "claude-sonnet-5",
+  "max_tokens": {
+    "agent_main": 16000,
+    "agent_escalation": 16000,
+    "ingest": 4000,
+    "triage": 4000,
+    "intent": 1000,
+    "consultant": 2000,
+    "report_writer": 8000
+  },
+  "_note": "Defaults also live in src/llm/models.ts; change them in Settings."
+}

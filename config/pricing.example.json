@@ -1,0 +1,26 @@
+{
+  "_note": "USD per 1 million tokens, official Anthropic prices as of Sep 18, 2026. Cache write (5 minutes) = 1.25x input, cache read = 0.1x input. Seeded automatically on the first server start.",
+  "models": [
+    {
+      "model": "claude-sonnet-5",
+      "input_per_mtok": 2,
+      "output_per_mtok": 10,
+      "cache_write_per_mtok": 2.5,
+      "cache_read_per_mtok": 0.2
+    },
+    {
+      "model": "claude-opus-5",
+      "input_per_mtok": 5,
+      "output_per_mtok": 25,
+      "cache_write_per_mtok": 6.25,
+      "cache_read_per_mtok": 0.5
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "input_per_mtok": 1,
+      "output_per_mtok": 5,
+      "cache_write_per_mtok": 1.25,
+      "cache_read_per_mtok": 0.1
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nsic/repro-dsl/v1",
+  "title": "NSIC Repro DSL v1",
+  "type": "object",
+  "required": ["version", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "environment": { "type": "string" },
+    "role_hint": { "type": "string" },
+    "viewport": {
+      "type": "object",
+      "properties": { "width": { "type": "integer", "minimum": 800, "maximum": 2560 }, "height": { "type": "integer", "minimum": 600, "maximum": 1600 } },
+      "additionalProperties": false
+    },
+    "redact": {
+      "type": "object",
+      "properties": {
+        "selectors": { "type": "array", "items": { "type": "string" } },
+        "patterns": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "steps": { "type": "array", "minItems": 1, "maxItems": 60, "items": { "$ref": "#/$defs/step" } }
+  },
+  "$defs": {
+    "target": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "selector": { "type": "string" },
+        "field": { "type": "string", "description": "NetSuite field id, e.g. approvalstatus / custbody_x" },
+        "text": { "type": "string" },
+        "role": { "enum": ["button", "link", "tab", "menuitem", "checkbox", "row"] },
+        "nth": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "action"],
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "enum": ["navigate", "wait", "click", "type", "select", "scroll", "assert", "expectError", "screenshot", "evaluate", "note"] },
+        "url": { "type": "string" },
+        "target": { "$ref": "#/$defs/target" },
+        "value": { "type": "string" },
+        "for": {
+          "type": "object",
+          "properties": {
+            "selector": { "type": "string" },
+            "text": { "type": "string" },
+            "networkIdle": { "type": "boolean" },
+            "ms": { "type": "integer", "minimum": 0, "maximum": 60000 }
+          },
+          "additionalProperties": false
+        },
+        "expect": {
+          "type": "object",
+          "properties": { "textIncludes": { "type": "string" }, "valueEquals": { "type": "string" }, "visible": { "type": "boolean" } },
+          "additionalProperties": false
+        },
+        "match": { "type": "string" },
+        "fn": { "enum": ["readField", "readSublist", "readUrl", "readPageErrors"] },
+        "args": { "type": "object" },
+        "screenshot": { "enum": ["viewport", "fullPage", "element"] },
+        "caption": { "type": "string", "maxLength": 160 },
+        "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 120000 },
+        "sandboxOnly": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
