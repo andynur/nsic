@@ -1,72 +1,77 @@
-# NSIC — NetSuite Issue Copilot · PRD Package
+# NSIC — NetSuite Issue Copilot
 
-Document version: 1.0 · Date: September 18, 2026 · Owner: you (single user, local-first)
+NSIC is a local web application for investigating NetSuite issues, organizing evidence, and preparing reports. It combines attachment ingestion, an SDF repository index, an investigation agent, and optional NetSuite connections. Production investigations are read-only; sandbox workflows can use additional capabilities when configured.
 
-NSIC is a local web app that helps a NetSuite developer investigate, reproduce,
-fix, and report client issues in an AI-driven way, whether in sandbox or production
-(read-only), regardless of the access level the client grants.
+The project is under active development. The repository and attachment investigation path has automated coverage. Live NetSuite OAuth, SuiteQL, and execution-log access still need validation against a real sandbox. See [implementation notes](docs/18-implementation-notes.md) and the [MVP scope](docs/15-roadmap.md).
 
-## How to read this package
+## Requirements
 
-| Order | File | Contents |
-|---|---|---|
-| 1 | `docs/01-PRD.md` | Main document: problem, goals, personas, user stories, functional & non-functional requirements, metrics |
-| 2 | `docs/02-architecture.md` | System architecture, processes, folder structure, end-to-end flow |
-| 3 | `docs/03-tech-stack-bun.md` | Mapping of requirements to Bun 1.4 built-in features, dependency budget |
-| 4 | `docs/04-data-model.md` + `schema/schema.sql` | SQLite data model |
-| 5 | `docs/05-agent-design.md` | Agent state machine, tools, evidence level, context & budget |
-| 6 | `docs/06-access-profiles-security.md` | Access tiers, onboarding wizard, capability probe, security |
-| 7 | `docs/07-netsuite-integration.md` | MCP (AI Connector Service), REST/SuiteQL, SDF/CLI, repo indexer |
-| 8 | `docs/08-browser-capture-recording.md` | Browser runner, screenshots, redaction, screen recording, replay |
-| 9 | `docs/09-attachment-ingestion.md` | Attachment pipeline (image, pdf, docx, xlsx, csv, email) |
-| 10 | `docs/10-token-usage-cost.md` | Token usage & cost tracking per session |
-| 11 | `docs/11-chat-consultant-assistant.md` | Issue chat & consultant answer assistant |
-| 12 | `docs/12-reports-export.md` | PDF, XLSX, MD, MP4 export |
-| 13 | `docs/13-api-spec.md` | HTTP routes & WebSocket events |
-| 14 | `docs/14-ui-ux-spec.md` | Screens, components, UI state |
-| 15 | `docs/15-roadmap.md` | Milestones, spikes, definition of done |
-| 16 | `docs/16-risks-open-questions.md` | Risks, mitigations, open questions |
-| 17 | `docs/17-best-practices.md` | Operational & engineering best practices |
-| 18 | `docs/18-implementation-notes.md` | Spike results, PRD revisions, code status |
-| — | `DESIGN.md` | NSIC design system (derived from Vercel design.md principles) |
-| — | `AGENTS.md` | Instructions for the coding agent (Claude Code, etc.) building NSIC |
-| — | `adr/` | Architecture Decision Records |
-| — | `prompts/` | Draft agent, triage, and consultant system prompts |
-| — | `config/` | Sample `.env`, `bunfig.toml`, `package.json`, pricing |
-| — | `templates/` | HTML report template skeletons |
+- Bun 1.4.x (runtime, package manager, test runner, and bundler)
+- Git
+- An LLM connection for agent features: an Anthropic API key, or a signed-in Claude Code or Codex CLI
+- Chrome or Chromium for browser capture and PDF export; `ffmpeg` for video; SuiteCloud CLI for SDF operations
 
-## Running it
+The optional binaries are checked by `bun run system:check`. The static UI needs none of the LLM or NetSuite setup.
+
+## Quick start
 
 ```sh
 bun install
-bun run ui          # static UI prototype with sample data, no backend → http://127.0.0.1:4318
-cp .env.example .env && bun run nsic   # fill in NSIC_MASTER_KEY; ANTHROPIC_API_KEY is only needed for Claude API
-bun run dev         # full backend → http://127.0.0.1:4317
-bun test && bun run typecheck
+bun run nsic init
+bun run dev
 ```
 
-Choose Claude API, Claude Code, or Codex in **Settings → LLM engine and models**. For a development CLI, sign in with `claude` or `codex login` first. Switching engines fills the model inputs with that engine's saved values or defaults. New Codex profiles suggest GPT-5.6 Terra for main work and reports, Sol for escalation, and Luna for short tasks. Pick another suggested model or enter a model ID for any role. `default` lets Codex CLI choose a model (NSIC ignores user config for these calls); **Use suggested Codex models** replaces older all-default profiles when desired. Save to apply to new calls, including calls from workers, without restarting. CLI calls have no API cost estimate. The Anthropic API key remains in `.env` for Claude API mode.
+Open <http://127.0.0.1:4317>. `init` creates `.env` from `.env.example` if needed, generates `NSIC_MASTER_KEY`, and initializes the SQLite database under `data/`. Keep `.env` private and back up the master key separately from `data/`; encrypted credentials depend on it.
 
-Implementation status, spike results, and PRD revisions: `docs/18-implementation-notes.md`.
+Choose **Claude API**, **Claude Code**, or **Codex** in **Settings → LLM engine and models**. For the API engine, set `ANTHROPIC_API_KEY` in `.env`. For a CLI engine, sign in to that CLI first. Model choices are saved per engine and apply to subsequent calls. CLI calls do not have an API cost estimate in NSIC.
 
-## Key decisions (summary)
+For UI work without the backend, run:
 
-1. **Bun 1.4.x only.** Server, bundler, test runner, SQLite, WebSocket, scheduler (`Bun.cron`),
-   headless browser (`Bun.WebView`), image (`Bun.Image`), markdown (`Bun.markdown`), XML (`Bun.XML`),
-   PTY (`Bun.Terminal`), shell (`Bun.$`), crypto (Web Crypto). The only runtime npm dependencies are `react` + `react-dom`.
-2. **SQLite (`bun:sqlite`) + local filesystem** for all data and artifacts. FTS5 for search.
-   No Redis, no Postgres, no vector DB in v1.
-3. **Read-only production is enforced by the NetSuite role**, not by a prompt. The browser runner has a
-   production guard as a second layer.
-4. **The Administrator role cannot be used for the NetSuite MCP.** Admin is only for setup; the agent
-   uses a dedicated MCP role.
-5. **Reproduce = deterministic script (Repro DSL)**, not free-form clicking. The same script is replayed
-   before and after the fix to produce before/after videos.
-6. **Evidence levels E0–E5** measure how strong the evidence is; final capture only happens after ≥ E3.
-7. **Design follows NSIC's DESIGN.md**, which adopts Vercel design.md principles (Geist, monochrome,
-   evidence-led) without using Vercel's brand identity.
+```sh
+bun run ui
+```
 
-## External fact verification status
+Open <http://127.0.0.1:4318>. This mode uses fixtures in `web/app/mock/` and does not start the database, jobs, LLM, or NetSuite connections.
 
-Facts about Bun 1.4, the NetSuite AI Connector Service, and Vercel design.md were checked on Sep 18, 2026.
-Items not yet directly verified are marked **[SPIKE]** and scheduled in `docs/15-roadmap.md` (M0).
+## Development commands
+
+| Command | Purpose |
+| --- | --- |
+| `bun run dev` | Start the full server with hot reload |
+| `bun run ui` | Start the fixture-backed static UI |
+| `bun run ui:shots` | Capture light and dark screenshots in `data/screens/` while `bun run ui` is running |
+| `bun run system:check` | Check the local runtime, binaries, LLM setup, and master key |
+| `bun run db:migrate` | Apply forward-only SQLite migrations (also applied when the database opens) |
+| `bun run db:seed-demo` | Replace the seed script's demo projects and issues in the selected database |
+| `bun test` | Run unit, guard, and scripted end-to-end tests |
+| `bun test --changed` | Run tests affected by local changes before committing |
+| `bun run typecheck` | Run strict TypeScript checking |
+| `bun run eval` | Replay cases in `evals/cases/` through the configured agent; requires an LLM connection |
+
+`bun run eval` writes results under `data/evals/`. Its three included cases exercise the fixture repository; the [MVP gate](docs/15-roadmap.md) calls for 10–20 historical issues. To preview the backend UI with sample data, run `bun run db:seed-demo` against a disposable `DATA_DIR` because it replaces its own demo records.
+
+## Project map
+
+| Path | Responsibility |
+| --- | --- |
+| `src/server.ts`, `src/routes/` | Bun HTTP and WebSocket server, API routes |
+| `src/db/` | SQLite migrations and raw-SQL repositories |
+| `src/agent/`, `src/llm/` | Investigation flow, tool policy, model engines |
+| `src/netsuite/`, `src/browser/` | NetSuite access and guarded browser workflows |
+| `src/ingest/`, `src/repo/` | Attachment extraction and SDF repository indexing |
+| `src/jobs/`, `src/reports/`, `src/eval/` | Background work, exports, and evaluation |
+| `web/` | React 19 UI, static fixtures, styles, and screenshot tooling |
+| `tests/`, `evals/` | Automated tests, fixtures, and agent cases |
+
+## Contributing
+
+Read [AGENTS.md](AGENTS.md) for the stack, security, UI, and definition-of-done rules. Use Bun 1.4.x, `Bun.serve`, `bun:sqlite` with raw SQL, and React without a framework or UI kit. New npm dependencies require an ADR in [`adr/`](adr/). Keep UI copy, reports, validation messages, and code comments in English.
+
+For UI changes, work in static mode first. If the UI needs a new API field, update the fixture and [API specification](docs/13-api-spec.md) before changing the backend. Add tests for new logic, then run `bun test` and `bun run typecheck`. Changes to the browser guard or agent tool registry also need tests in `tests/guard/`.
+
+## Documentation
+
+- [Product requirements](docs/01-PRD.md), [architecture](docs/02-architecture.md), and [Bun stack](docs/03-tech-stack-bun.md)
+- [API contract](docs/13-api-spec.md), [UI specification](docs/14-ui-ux-spec.md), and [design system](DESIGN.md)
+- [Security and access profiles](docs/06-access-profiles-security.md), [roadmap](docs/15-roadmap.md), and [implementation notes](docs/18-implementation-notes.md)
+- [Architecture decisions](adr/) and [agent instructions](AGENTS.md)
