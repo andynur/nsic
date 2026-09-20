@@ -1,0 +1,9 @@
+[install]
+linker = "isolated"
+exact = true
+
+[test]
+preload = ["./tests/setup.ts"]
+
+[serve.static]
+sourcemap = "none"

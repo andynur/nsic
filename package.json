@@ -1,0 +1,34 @@
+{
+  "name": "nsic",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "scripts": {
+    "dev": "bun --hot src/server.ts",
+    "start": "NODE_ENV=production bun src/server.ts",
+    "ui": "bun --hot web/ui-server.ts",
+    "ui:shots": "bun web/tools/screens.ts",
+    "worker": "bun --no-orphans src/worker.ts",
+    "test": "bun test",
+    "test:changed": "bun test --changed",
+    "eval": "bun src/eval/run.ts",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "bun src/db/migrate.ts",
+    "db:seed-demo": "bun src/scripts/seed-demo.ts",
+    "nsic": "bun src/cli.ts",
+    "system:check": "bun src/cli.ts system-check"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^7.0.0"
+  }
+}
