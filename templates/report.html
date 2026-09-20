@@ -1,0 +1,114 @@
+<!doctype html>
+<!-- NSIC report template skeleton. {{...}} placeholders are filled by src/reports/html.ts from the ReportModel.
+     Visual tokens follow DESIGN.md (--ns-*). Geist fonts are embedded as data: URIs when rendering the PDF.
+     Reports are always rendered in the light theme. -->
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{issueKey}} · {{titleClaim}}</title>
+<style>
+  /* tokens.css is inlined here at build time */
+  {{tokensCss}}
+  @page { size: A4; margin: 16mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ns-bg); color: var(--ns-text); font: 400 14px/22px var(--ns-font-sans); }
+  .shell { max-width: 1080px; margin: 0 auto; padding: var(--ns-space-8) var(--ns-space-6); display: grid; gap: var(--ns-space-10); }
+  .masthead { display: flex; justify-content: space-between; align-items: baseline; color: var(--ns-text-secondary); font-size: 13px; }
+  .masthead .id { font: 500 13px/18px var(--ns-font-sans); color: var(--ns-text); }
+  .mono { font-family: var(--ns-font-mono); font-size: 13px; }
+  td.when { white-space: nowrap; }
+  h1 { margin: 0; font: 600 32px/40px var(--ns-font-sans); letter-spacing: -0.04em; max-width: 24ch; }
+  h2 { margin: 0; font: 600 18px/26px var(--ns-font-sans); letter-spacing: -0.02em; }
+  p { margin: 0; max-width: 68ch; }
+  .opening { display: grid; grid-template-columns: 7fr 5fr; gap: var(--ns-space-8); align-items: start; }
+  .opening > * { min-width: 0; }
+  .answer { display: grid; gap: var(--ns-space-3); }
+  .status { color: var(--ns-text-secondary); }
+  .status b { color: var(--ns-text); font-weight: 500; }
+  section { display: grid; gap: var(--ns-space-4); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 20px; }
+  caption { text-align: left; color: var(--ns-text-secondary); padding-bottom: var(--ns-space-2); }
+  th { text-align: left; font-weight: 500; color: var(--ns-text-secondary); border-bottom: 1px solid var(--ns-border-strong); padding: 8px 12px 8px 0; vertical-align: bottom; }
+  td { border-bottom: 1px solid var(--ns-border); padding: 8px 12px 8px 0; vertical-align: baseline; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ns-space-6); }
+  figure { margin: 0; display: grid; gap: var(--ns-space-2); break-inside: avoid; }
+  figure img { width: 100%; border: 1px solid var(--ns-border); border-radius: var(--ns-radius-md); }
+  figcaption { font-size: 12px; line-height: 18px; color: var(--ns-text-secondary); }
+  pre { margin: 0; padding: var(--ns-space-3); background: var(--ns-bg-subtle); border: 1px solid var(--ns-border); border-radius: var(--ns-radius-md); font: 400 12px/18px var(--ns-font-mono); overflow-x: auto; }
+  .caveats { color: var(--ns-text-secondary); }
+  footer { color: var(--ns-text-tertiary); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="masthead">
+    <span class="id">{{brandName}}</span>
+    <span><span class="mono">{{issueKey}}</span> · {{preparedAtLocal}}</span>
+  </header>
+
+  <main id="main" style="display:grid; gap: var(--ns-space-12);">
+    <!-- Executive path: claim + decisive evidence in the first viewport -->
+    <div class="opening">
+      <div class="answer">
+        <h1>{{titleClaim}}</h1>
+        <p>{{answerOneLine}}</p>
+        <p class="status">Status <b>{{status}}</b> · Evidence <b class="mono">E{{evidenceLevel}}</b> {{evidenceLabel}} · Environment <b>{{environmentName}}</b></p>
+      </div>
+      <figure>
+        <img src="{{keyEvidenceImage}}" alt="{{keyEvidenceAlt}}">
+        <figcaption>{{keyEvidenceCaption}}</figcaption>
+      </figure>
+    </div>
+
+    <section aria-labelledby="h-cause">
+      <h2 id="h-cause">Cause</h2>
+      <p>{{rootCauseNarrative}}</p>
+    </section>
+
+    <section aria-labelledby="h-evidence">
+      <h2 id="h-evidence">Evidence</h2>
+      <table>
+        <caption>{{evidenceCaption}}</caption>
+        <thead><tr><th scope="col">ID</th><th scope="col">Level</th><th scope="col">Evidence</th><th scope="col">Reference</th></tr></thead>
+        <tbody>{{#evidence}}<tr><td class="mono">{{id}}</td><td class="mono">E{{level}}</td><td>{{title}}<br><span class="status">{{summary}}</span></td><td class="mono">{{ref}}</td></tr>{{/evidence}}</tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="h-steps">
+      <h2 id="h-steps">Steps to reproduce</h2>
+      <div class="steps">{{#steps}}<figure><img src="{{src}}" alt="Step {{index}}"><figcaption><span class="mono">{{index}}</span> · {{caption}}</figcaption></figure>{{/steps}}</div>
+    </section>
+
+    <section aria-labelledby="h-fix">
+      <h2 id="h-fix">Fix and verification</h2>
+      <p>{{fixNarrative}}</p>
+      <pre>{{diffExcerpt}}</pre>
+      <table>
+        <caption>Before and after the fix in sandbox</caption>
+        <thead><tr><th scope="col">Step</th><th scope="col">Before</th><th scope="col">After</th></tr></thead>
+        <tbody>{{#beforeAfter}}<tr><td>{{step}}</td><td>{{before}}</td><td>{{after}}</td></tr>{{/beforeAfter}}</tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="h-limits" class="caveats">
+      <h2 id="h-limits">Limitations</h2>
+      {{#caveats}}<p>{{.}}</p>{{/caveats}}
+    </section>
+
+    {{#includeCost}}
+    <section aria-labelledby="h-usage">
+      <h2 id="h-usage">AI usage</h2>
+      <table>
+        <thead><tr><th scope="col">Purpose</th><th scope="col" class="num">Tokens</th><th scope="col" class="num">Cost (USD)</th></tr></thead>
+        <tbody>{{#usage}}<tr><td>{{purpose}}</td><td class="num">{{tokens}}</td><td class="num">{{cost}}</td></tr>{{/usage}}</tbody>
+      </table>
+    </section>
+    {{/includeCost}}
+  </main>
+
+  <footer>{{footerNote}}</footer>
+</div>
+</body>
+</html>
