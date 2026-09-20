@@ -1,0 +1,24 @@
+:root {
+  color-scheme: light;
+  --ns-font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ns-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --ns-bg: #FFFFFF; --ns-bg-subtle: #FAFAFA; --ns-bg-muted: #F2F2F2;
+  --ns-text: #171717; --ns-text-secondary: #5C5C5C; --ns-text-tertiary: #8F8F8F;
+  --ns-border: #EBEBEB; --ns-border-strong: #D4D4D4;
+  --ns-accent: #0068D6; --ns-focus: #0068D6;
+  --ns-success: #107D32; --ns-warning: #A35200; --ns-error: #C8102E; --ns-info: #0068D6;
+
+  --ns-space-1: 4px; --ns-space-2: 8px; --ns-space-3: 12px; --ns-space-4: 16px; --ns-space-5: 20px;
+  --ns-space-6: 24px; --ns-space-8: 32px; --ns-space-10: 40px; --ns-space-12: 48px; --ns-space-16: 64px;
+  --ns-radius-sm: 4px; --ns-radius-md: 6px; --ns-radius-lg: 8px;
+  --ns-motion-fast: 120ms; --ns-motion-base: 180ms; --ns-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ns-bg: #0A0A0A; --ns-bg-subtle: #111111; --ns-bg-muted: #1A1A1A;
+  --ns-text: #EDEDED; --ns-text-secondary: #A1A1A1; --ns-text-tertiary: #707070;
+  --ns-border: #262626; --ns-border-strong: #3A3A3A;
+  --ns-accent: #52A8FF; --ns-focus: #52A8FF;
+  --ns-success: #4CC476; --ns-warning: #F2A33A; --ns-error: #FF6166; --ns-info: #52A8FF;
+}
