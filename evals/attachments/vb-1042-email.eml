@@ -1,0 +1,14 @@
+From: Rina <rina@acme.example>
+To: support@partner.example
+Subject: VB-1042 cannot be approved
+Date: Sat, 12 Sep 2026 09:14:00 +0700
+Content-Type: text/plain; charset=utf-8
+
+Hi,
+
+We cannot approve vendor bill VB-1042 (internal id 1042, amount 125,000,000).
+Clicking Approve shows "Record has been changed". Other bills over 100 million have the same problem.
+Role: A/P Clerk.
+
+Thanks,
+Rina

@@ -1,0 +1,12 @@
+{
+  "id": "mr-invoice-governance",
+  "title": "Invoice reminder script fails every night",
+  "description": "The nightly invoice reminder job stopped sending reminders. The script status page shows the map stage failing with SSS_USAGE_LIMIT_EXCEEDED. It used to work when we had fewer open invoices.",
+  "repo": "tests/fixtures/sdf-repo",
+  "attachments": [],
+  "expect": {
+    "min_level": 4,
+    "files": ["mr_invoice_reminder.js"],
+    "keywords": ["loop|1000|repeat", "governance|usage|SSS_USAGE_LIMIT_EXCEEDED"]
+  }
+}

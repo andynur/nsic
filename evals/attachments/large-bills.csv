@@ -1,0 +1,4 @@
+bill,vendor,amount,status,error
+VB-2210,PT Baja,150000,Pending,"USER_ERROR: Bill over 100,000 requires CFO approval"
+VB-2211,PT Baja,85000,Saved,
+VB-2215,CV Kertas,101000,Pending,"USER_ERROR: Bill over 100,000 requires CFO approval"

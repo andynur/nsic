@@ -1,0 +1,12 @@
+{
+  "id": "vb-double-save",
+  "title": "Vendor bill VB-1042 fails to approve: Record has been changed",
+  "description": "Email from Finance: since yesterday we cannot approve vendor bill VB-1042 and several other bills. Every time we click Approve we get the error \"Record has been changed\". Retrying and logging out does not help. Role: A/P Clerk. This is holding up supplier payments.",
+  "repo": "tests/fixtures/sdf-repo",
+  "attachments": ["attachments/vb-1042-email.eml"],
+  "expect": {
+    "min_level": 4,
+    "files": ["ue_vb_sync_ap.js", "ue_vb_approval.js"],
+    "keywords": ["RCRD_HAS_BEEN_CHANGED|has been changed|save"]
+  }
+}

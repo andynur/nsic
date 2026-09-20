@@ -1,0 +1,6 @@
+<transactionbodycustomfield scriptid="custbody_acme_approved_by">
+  <label>Approved By</label>
+  <fieldtype>SELECT</fieldtype>
+  <selectrecordtype>-4</selectrecordtype>
+  <appliestopurchase>T</appliestopurchase>
+</transactionbodycustomfield>

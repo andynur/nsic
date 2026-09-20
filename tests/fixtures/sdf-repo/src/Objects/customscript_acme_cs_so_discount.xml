@@ -1,0 +1,10 @@
+<clientscript scriptid="customscript_acme_cs_so_discount">
+  <name>ACME CS SO Discount</name>
+  <scriptfile>[/SuiteScripts/acme/cs_so_discount.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_acme_cs_so_discount">
+      <recordtype>SALESORDER</recordtype>
+      <status>RELEASED</status>
+    </scriptdeployment>
+  </scriptdeployments>
+</clientscript>

@@ -1,0 +1,14 @@
+<usereventscript scriptid="customscript_acme_ue_vb_approval">
+  <name>ACME UE VB Approval Stamp</name>
+  <scriptfile>[/SuiteScripts/acme/ue_vb_approval.js]</scriptfile>
+  <isinactive>F</isinactive>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_acme_ue_vb_approval">
+      <isdeployed>T</isdeployed>
+      <loglevel>DEBUG</loglevel>
+      <recordtype>VENDORBILL</recordtype>
+      <runasrole>ADMINISTRATOR</runasrole>
+      <status>RELEASED</status>
+    </scriptdeployment>
+  </scriptdeployments>
+</usereventscript>

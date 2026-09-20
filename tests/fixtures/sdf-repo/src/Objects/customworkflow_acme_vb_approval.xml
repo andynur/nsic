@@ -1,0 +1,20 @@
+<workflow scriptid="customworkflow_acme_vb_approval">
+  <name>ACME Vendor Bill Approval</name>
+  <recordtypes>VENDORBILL</recordtypes>
+  <initoncreate>T</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate_pending">
+      <name>Pending Approval</name>
+      <workflowactions triggertype="BEFORESUBMIT">
+        <setfieldvalueaction scriptid="workflowaction_set_status">
+          <field>APPROVALSTATUS</field>
+          <valuetext>1</valuetext>
+        </setfieldvalueaction>
+      </workflowactions>
+    </workflowstate>
+    <workflowstate scriptid="workflowstate_approved">
+      <name>Approved</name>
+    </workflowstate>
+  </workflowstates>
+</workflow>

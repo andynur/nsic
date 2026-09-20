@@ -1,0 +1,12 @@
+<usereventscript scriptid="customscript_acme_ue_vb_sync_ap">
+  <name>ACME UE VB Sync AP</name>
+  <scriptfile>[/SuiteScripts/acme/ue_vb_sync_ap.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_acme_ue_vb_sync_ap">
+      <isdeployed>T</isdeployed>
+      <loglevel>ERROR</loglevel>
+      <recordtype>VENDORBILL</recordtype>
+      <status>RELEASED</status>
+    </scriptdeployment>
+  </scriptdeployments>
+</usereventscript>

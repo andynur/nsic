@@ -1,0 +1,9 @@
+<mapreducescript scriptid="customscript_acme_mr_invoice_reminder">
+  <name>ACME MR Invoice Reminder</name>
+  <scriptfile>[/SuiteScripts/acme/mr_invoice_reminder.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_acme_mr_invoice_reminder">
+      <status>SCHEDULED</status>
+    </scriptdeployment>
+  </scriptdeployments>
+</mapreducescript>

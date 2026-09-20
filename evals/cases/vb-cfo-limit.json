@@ -1,0 +1,12 @@
+{
+  "id": "vb-cfo-limit",
+  "title": "Cannot save large vendor bills: requires CFO approval",
+  "description": "AP team: saving vendor bill VB-2210 for 150,000 fails with 'USER_ERROR: Bill over 100,000 requires CFO approval'. Nobody knows where this rule comes from, there is no CFO step in our approval workflow. Smaller bills save fine.",
+  "repo": "tests/fixtures/sdf-repo",
+  "attachments": ["attachments/large-bills.csv"],
+  "expect": {
+    "min_level": 4,
+    "files": ["ue_vb_sync_ap.js"],
+    "keywords": ["beforeSubmit|before submit", "custbody_acme_cfo_ok|cfo"]
+  }
+}
